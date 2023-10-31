@@ -1,0 +1,23 @@
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { deleteBooking as deleteBookingApi } from "../../services/apiBookings";
+
+export function useDeleteBooking() {
+  const queryClient = useQueryClient();
+
+  const { isLoading: isDeleting, mutate: deleteBooking } = useMutation({
+    mutationFn: (id) => deleteBookingApi(id),
+    // To update UI state immediately, we need to invalidate the cache
+    onSuccess: () => {
+      toast.success("Booking successfully deleted");
+      queryClient.invalidateQueries({
+        queryKey: ["bookings"],
+      });
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  return { deleteBooking, isDeleting };
+}
